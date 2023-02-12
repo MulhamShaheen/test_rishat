@@ -6,21 +6,18 @@
     <title>Тестовое задание</title>
 </head>
 <body>
-    <h1>Item 1</h1>
-    <p>Description of Item 1</p>
+    <h1>{{name}}</h1>
+    <p>{{description}}</p>
     <button id="buy-button">Buy</button>
     <script type="text/javascript">
       var stripe = Stripe('pk_test_51MaMuTCFuR6MvWxzLN8AN0Q3BuUDmyfEhPs2cmqS7c9OmnPYPHQGTJeDUKvDJ0b72kC7fGHzpBaOl4bkoCSRCOLQ00acQEWfpM');
       var buyButton = document.getElementById('buy-button');
       buyButton.addEventListener('click', function() {
-        console.log("sadads")
-        // Create a new Checkout Session using the server-side endpoint
-        // Redirect to Stripe Session Checkout
-        fetch('/buy/1', {method: 'GET'})
+
+        fetch('/buy/{{item_id}}', {method: 'GET'})
         .then(response => {return response.json()})
         .then(session => {
-          stripe.redirectToCheckout({ sessionId: session.session_id })
-          {% comment %} console.log(session) {% endcomment %}
+          stripe.redirectToCheckout({ sessionId: session.id })
         })
       });
     </script>

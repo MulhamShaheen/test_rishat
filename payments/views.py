@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from . import models
@@ -50,13 +51,24 @@ def get_buy(request, id):
         "product_id": product.id,
         "price_id": product_price.id,
         "price_amount": product_price.unit_amount,
-        "session_id": checkout_session.id,
+        "id": checkout_session.id,
 
     })
 
 
 def get_item(request, id):
-    return render(request, 'payments/index.html')
+    
+    try:
+        item = models.Item.objects.get(id=id)
+        
+    except Item.DoesNotExist:
+        raise Http404("No item matches the given id.")
+
+    return render(request, 'payments/index.html', {
+        "item_id": item.id,
+        "name": item.name,
+        "description": item.description
+    })
 
 @api_view(['POST'])
 def post_test(request):
