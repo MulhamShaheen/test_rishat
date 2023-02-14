@@ -26,7 +26,7 @@ def get_buy(request, id):
 
     product_price = stripe.Price.create(
         unit_amount=int(item.price),
-        currency="usd",
+        currency=item.currency,
         product=product['id'],
     )
     try:
@@ -52,6 +52,7 @@ def get_buy(request, id):
         "price_id": product_price.id,
         "price_amount": product_price.unit_amount,
         "id": checkout_session.id,
+        "checkout_session": checkout_session
 
     })
 
@@ -70,6 +71,48 @@ def get_item(request, id):
         "description": item.description
     })
 
+
+@api_view(['GET'])
+def get_order(request, id):
+    stripe.api_key = "sk_test_51MaMuTCFuR6MvWxzdid0qSRP9tUj8MzFTSS6KUWoL95OKNKc9JLbMxowkRAd1MWjxkl4WS7vPo8nTDzm5qIC4UuW0062hUoymX"
+    order = models.Order.objects.get(id=id)
+    
+    stipe_order = stripe.Product.create(
+            name=str(order),
+            description=order.get_description(),
+        )
+
+    order_price = stripe.Price.create(
+        unit_amount=int(order.get_prices_sum()),
+        currency="usd",
+        product=stipe_order['id'],
+    )
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': order_price.id,
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url= 'http://127.0.0.1:8000/success.html',
+            cancel_url= 'http://127.0.0.1:8000/cancel.html',
+        )
+    except Exception as e:
+        return Response(str(e))
+    
+    return Response({
+        "product_id": order.id,
+        "price_id": order_price.id,
+        "price_amount": order_price.unit_amount,
+        "id": checkout_session.id,
+        
+    }) 
+    
+    
+    
 @api_view(['POST'])
 def post_test(request):
     serializer = ItemSerializer(data=request.data)

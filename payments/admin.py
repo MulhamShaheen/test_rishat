@@ -8,3 +8,9 @@ class PersonAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'price']
     list_editable = ['name','price']
     list_filter = ('price',)
+
+@admin.register(Order)
+class PersonAdmin(admin.ModelAdmin):
+    model = Order
+    list_display = ['id', 'created_at']
+    list_filter = ('created_at',)
