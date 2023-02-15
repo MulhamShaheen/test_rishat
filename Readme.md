@@ -9,7 +9,7 @@
 - git clone данную репазиторию
 - запускаете docker на своей машине
 - docker-compose build
-- docker-compose -d up
+- docker-compose --env-file .env  up -d
 
 Ps. container Nginx в docker слушает порт 80, проверьте если он не занят
 

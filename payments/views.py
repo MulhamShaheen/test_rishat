@@ -4,11 +4,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from . import models
 from .serializers import *
+from os import environ
 import stripe
 
 @api_view(['GET'])
 def get_buy(request, id):
-    stripe.api_key = "sk_test_51MaMuTCFuR6MvWxzdid0qSRP9tUj8MzFTSS6KUWoL95OKNKc9JLbMxowkRAd1MWjxkl4WS7vPo8nTDzm5qIC4UuW0062hUoymX"
+    stripe.api_key =  environ.get('STRIPE_KEY')
     item = models.Item.objects.get(id=id)
 
     search_res = stripe.Product.search(
@@ -78,7 +79,7 @@ def get_item(request, id):
 
 @api_view(['GET'])
 def get_order(request, id):
-    stripe.api_key = "sk_test_51MaMuTCFuR6MvWxzdid0qSRP9tUj8MzFTSS6KUWoL95OKNKc9JLbMxowkRAd1MWjxkl4WS7vPo8nTDzm5qIC4UuW0062hUoymX"
+    stripe.api_key =  environ.get('STRIPE_KEY')
     order = models.Order.objects.get(id=id)
     
     stipe_order = stripe.Product.create(
