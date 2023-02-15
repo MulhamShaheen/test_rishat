@@ -10,7 +10,7 @@ CURRENCY_CHOICES = (
 class Item(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
-    price = models.FloatField()
+    price = models.IntegerField()
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='usd')
     
     def __str__(self):
