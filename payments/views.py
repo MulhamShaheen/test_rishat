@@ -30,17 +30,21 @@ def get_buy(request, id):
         product=product['id'],
     )
     try:
-        checkout_session = stripe.checkout.Session.create(
-            line_items=[
-                {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    'price': product_price.id,
-                    'quantity': 1,
-                },
-            ],
-            mode='payment',
-            success_url= 'http://127.0.0.1:8000/success.html',
-            cancel_url= 'http://127.0.0.1:8000/cancel.html',
+        # checkout_session = stripe.checkout.Session.create(
+        #     line_items=[
+        #         {
+        #             # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+        #             'price': product_price.id,
+        #             'quantity': 1,
+        #         },
+        #     ],
+        #     mode='payment',
+        #     success_url= 'http://127.0.0.1:8000/success.html',
+        #     cancel_url= 'http://127.0.0.1:8000/cancel.html',
+         intent = stripe.PaymentIntent.create(
+            amount=int(product_price.unit_amount),
+            currency="usd",
+            automatic_payment_methods={"enabled": True},
         )
     except Exception as e:
         return Response(str(e))
@@ -51,8 +55,8 @@ def get_buy(request, id):
         "product_id": product.id,
         "price_id": product_price.id,
         "price_amount": product_price.unit_amount,
-        "id": checkout_session.id,
-        "checkout_session": checkout_session
+        "id": intent.id,
+        "client_secret": intent.client_secret
 
     })
 
@@ -88,18 +92,25 @@ def get_order(request, id):
         product=stipe_order['id'],
     )
     try:
-        checkout_session = stripe.checkout.Session.create(
-            line_items=[
-                {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    'price': order_price.id,
-                    'quantity': 1,
-                },
-            ],
-            mode='payment',
-            success_url= 'http://127.0.0.1:8000/success.html',
-            cancel_url= 'http://127.0.0.1:8000/cancel.html',
+        # checkout_session = stripe.checkout.Session.create(
+        #     line_items=[
+        #         {
+        #             # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+        #             'price': order_price.id,
+        #             'quantity': 1,
+        #         },
+        #     ],
+        #     mode='payment',
+        #     success_url= 'http://127.0.0.1:8000/success.html',
+        #     cancel_url= 'http://127.0.0.1:8000/cancel.html',
+        # )
+        
+        intent = stripe.PaymentIntent.create(
+            amount=int(order.get_prices_sum()),
+            currency="usd",
+            automatic_payment_methods={"enabled": True},
         )
+        
     except Exception as e:
         return Response(str(e))
     
@@ -107,7 +118,8 @@ def get_order(request, id):
         "product_id": order.id,
         "price_id": order_price.id,
         "price_amount": order_price.unit_amount,
-        "id": checkout_session.id,
+        "id": intent.id,
+        "client_secret": intent.client_secret
         
     }) 
     
@@ -128,4 +140,4 @@ def get_test(request):
     items = models.Item.objects.all()
     data = ItemSerializer(items, many=True).data
 
-    return Response(data)\
+    return Response(data)
